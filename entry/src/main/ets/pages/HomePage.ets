@@ -1,3 +1,4 @@
+import { HClockIn } from '../commons/components/HClockIn'
 import { HSearch } from '../commons/components/HSearch'
 
 @Component
@@ -14,6 +15,7 @@ export struct HomePage {
         //搜索盒子
         HSearch({ layoutWeightValue: 1 })
         // 打卡
+        HClockIn()
       }
       .padding({
         left: 16,
