@@ -1,4 +1,12 @@
 import { HNavBar } from '../commons/components/HNavBar'
+import { promptAction, router } from '@kit.ArkUI'
+import { httpClient } from '../commons/utils/HttpClient'
+import { User } from '../models'
+
+interface LoginParam {
+  username: string
+  password: string
+}
 
 @Entry
 @Component
@@ -11,6 +19,48 @@ struct LoginPage {
   isAgree: boolean = false
   @State
   loading: boolean = false
+
+  async login() {
+    // 1.校验
+    if (!this.mobile) {
+      return promptAction.showToast({
+        message: '请输入用户名'
+      })
+    }
+    if (!this.code) {
+      return promptAction.showToast({
+        message: '请输入密码'
+      })
+    }
+    if (!this.isAgree) {
+      return promptAction.showToast({
+        message: '请阅读并勾选协议'
+      })
+    }
+    this.loading = true
+    // 2.请求
+    try {
+      const user = await httpClient.request<User, LoginParam>({
+        url: 'login',
+        method: 'post',
+        data: {
+          username: this.mobile,
+          password: this.code
+        }
+      })
+      this.loading = false
+      // 3.成功 存储
+      AppStorage.setOrCreate<User>('user', user)
+      // 用户+跳转
+      router.back()
+    } catch (e) {
+      // 4.失败 提示错误信息
+      this.loading = false
+      promptAction.showToast({
+        message: e.message || '登陆失败'
+      })
+    }
+  }
 
   build() {
     Column() {
@@ -84,6 +134,7 @@ struct LoginPage {
         .stateEffect(false)
         .onClick(() => {
           // TODO
+          this.login()
         })
       }
       .padding({ left: 36, right: 36, top: 30 })
