@@ -7,6 +7,8 @@ export struct HomeCategory {
   @State
   activeIndex: number = 0
   @State
+  sort: number = SortType.Default
+  @State
   questionTypeList: QuestionType[] = []
   @State
   show: boolean = false
@@ -38,6 +40,11 @@ export struct HomeCategory {
           .fontWeight(500)
           .fontSize(16)
           .fontColor($r('app.color.common_main_color'))
+          .onClick(() => {
+            this.activeIndex = this.filterDataIndex
+            this.sort = this.filterDateSort
+            this.show = false
+          })
       }
       .margin({ bottom: 4, top: 4 })
 
@@ -147,7 +154,12 @@ export struct HomeCategory {
         ForEach(this.questionTypeList, (item: QuestionType, index) => {
           TabContent() {
             // 试题列表组件（上拉，下拉）
-            QuestionListComp({ typeId: item.id })
+            QuestionListComp({
+              typeId: item.id,
+              sort: this.sort,
+              activeIndex: this.activeIndex,
+              index: index
+            })
           }
           .tabBar(this.TabBarBuilder(item, index))
         })
@@ -174,6 +186,8 @@ export struct HomeCategory {
       })
       .onClick(() => {
         this.show = true
+        //
+        this.filterDataIndex = this.activeIndex
       })
     }
     .width('100%')

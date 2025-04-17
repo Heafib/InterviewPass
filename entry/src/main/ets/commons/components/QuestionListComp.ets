@@ -16,9 +16,21 @@ export struct QuestionListComp {
   @Prop
   typeId: number
   @Prop
+  @Watch('onChange')
   sort: SortType = SortType.Default
   @Prop
   page: number
+  @Prop
+  activeIndex: number
+  @Prop
+  index: number
+
+  onChange() {
+    if (this.activeIndex === this.index) {
+      // 排序改变触发更新（当前激活的选项卡的试题列表才触发）
+      this.isRefresh = true
+    }
+  }
 
   // 获取试题列表
   getQuestionList(): Promise<PageData<QuestionItem>> {
