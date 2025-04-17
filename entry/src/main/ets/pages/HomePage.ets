@@ -54,6 +54,7 @@ export struct HomePage {
         .bottom(4)
         .itemWidth(10)
         .itemHeight(4)
+        .selectedItemHeight(4)
         .selectedItemWidth(10)
         .selectedColor($r('app.color.white')))
 

@@ -1,4 +1,4 @@
-import { QuestionItemComp } from '../../commons/components/QuestionItemComp'
+import { QuestionListComp } from '../../commons/components/QuestionListComp'
 import { QuestionType } from '../../models'
 
 @Component
@@ -53,16 +53,8 @@ export struct HomeCategory {
       Tabs({ index: this.activeIndex }) {
         ForEach(this.questionTypeList, (item: QuestionType, index) => {
           TabContent() {
-            QuestionItemComp({
-              item: {
-                id: '100',
-                stem: '请说下ArkUI的容器组件有哪些？',
-                difficulty: 3,
-                likeCount: 23,
-                views: 423,
-                readFlag: 1
-              }
-            })
+            // 试题列表组件（上拉，下拉）
+            QuestionListComp()
           }
           .tabBar(this.TabBarBuilder(item, index))
         })
