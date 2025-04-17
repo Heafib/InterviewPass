@@ -1,4 +1,5 @@
 import { QuestionListComp } from '../../commons/components/QuestionListComp'
+import { httpClient } from '../../commons/utils/HttpClient'
 import { QuestionType } from '../../models'
 
 @Component
@@ -6,16 +7,16 @@ export struct HomeCategory {
   @State
   activeIndex: number = 0
   @State
-  questionTypeList: QuestionType[] = [
-    { id: 1, name: 'ArkTS', displayNewestFlag: 0 },
-    { id: 2, name: 'ArkUI', displayNewestFlag: 1 },
-    { id: 3, name: 'Hap', displayNewestFlag: 1 },
-    { id: 4, name: 'Hsp', displayNewestFlag: 0 },
-    { id: 5, name: 'Har', displayNewestFlag: 0 },
-    { id: 6, name: 'Ability', displayNewestFlag: 0 },
-    { id: 7, name: 'Stage', displayNewestFlag: 0 },
-    { id: 8, name: 'Kit', displayNewestFlag: 0 }
-  ]
+  questionTypeList: QuestionType[] = []
+
+  aboutToAppear(): void {
+    this.getQuestionTypeList()
+  }
+
+  async getQuestionTypeList() {
+    const res = await httpClient.request<QuestionType[]>({ url: 'question/type' })
+    this.questionTypeList = res
+  }
 
   @Builder
   TabBarBuilder(item: QuestionType, index: number) {
