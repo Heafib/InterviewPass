@@ -12,7 +12,7 @@ interface LoginParam {
 @Component
 struct LoginPage {
   @State
-  mobile: string = 'hmheima'
+  mobile: string = 'hmheima6'
   @State
   code: string = 'Hmheima%123'
   @State
