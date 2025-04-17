@@ -8,6 +8,42 @@ export struct HomeCategory {
   activeIndex: number = 0
   @State
   questionTypeList: QuestionType[] = []
+  @State
+  show: boolean = false
+
+  @Builder
+  FilterSheetBuilder() {
+    Column() {
+      Row() {
+        Text('重置')
+          .fontSize(16)
+          .fontWeight(500)
+          .fontColor($r('app.color.common_gray_03'))
+        Text('筛选题目')
+          .layoutWeight(1)
+          .fontSize(18)
+          .fontWeight(500)
+          .fontColor($r('app.color.black'))
+          .textAlign(TextAlign.Center)
+        Text('完成')
+          .fontWeight(500)
+          .fontSize(16)
+          .fontColor($r('app.color.common_main_color'))
+      }
+      .margin({ bottom: 4, top: 4 })
+
+      Text('题目排序')
+        .textTitle()
+      // TODO 筛选按钮
+
+      Text('选择分类')
+        .textTitle()
+      // TODO 筛选按钮
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.white'))
+    .height('100%')
+  }
 
   aboutToAppear(): void {
     this.getQuestionTypeList()
@@ -44,13 +80,13 @@ export struct HomeCategory {
     }
     .padding({
       left: 16,
-      right: this.questionTypeList.length - 1 === index ? 16 : 0
+      right: this.questionTypeList.length - 1 === index ? 56 : 0
     })
 
   }
 
   build() {
-    Column() {
+    Stack({ alignContent: Alignment.TopEnd }) {
       Tabs({ index: this.activeIndex }) {
         ForEach(this.questionTypeList, (item: QuestionType, index) => {
           TabContent() {
@@ -66,9 +102,39 @@ export struct HomeCategory {
       .onTabBarClick((index) => {
         this.activeIndex = index
       })
+
+      //筛选按钮
+      Row() {
+        Image($r('app.media.ic_home_filter'))
+          .width(24)
+          .aspectRatio(1)
+      }
+      .width(56)
+      .height(44)
+      .justifyContent(FlexAlign.Center)
+      .linearGradient({
+        angle: 90,
+        colors: [['#00FFFFFF', 0], ['#FFFFFF', 0.285]]
+      })
+      .onClick(() => {
+        this.show = true
+      })
     }
     .width('100%')
     .layoutWeight(1)
     .backgroundColor($r('app.color.white'))
+    .bindSheet($$this.show, this.FilterSheetBuilder(), {
+      showClose: false,
+      height: 400
+    })
   }
+}
+
+@Extend(Text)
+function textTitle() {
+  .fontSize(14)
+  .fontWeight(500)
+  .fontColor($r('app.color.black'))
+  .width('100%')
+  .margin({ top: 20 })
 }
