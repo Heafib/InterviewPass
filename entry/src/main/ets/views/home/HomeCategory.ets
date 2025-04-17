@@ -1,3 +1,4 @@
+import { HTag } from '../../commons/components/HTag'
 import { QuestionType } from '../../models'
 
 @Component
@@ -52,6 +53,14 @@ export struct HomeCategory {
       Tabs({ index: this.activeIndex }) {
         ForEach(this.questionTypeList, (item: QuestionType, index) => {
           TabContent() {
+            Column({ space: 16 }) {
+              HTag({ difficulty: 1 })
+              HTag({ difficulty: 2 })
+              HTag({ difficulty: 3 })
+              HTag({ difficulty: 4 })
+              HTag({ difficulty: 5 })
+              HTag({ difficulty: 5, text: '自定义', color: "#ff00" })
+            }
           }
           .tabBar(this.TabBarBuilder(item, index))
         })
