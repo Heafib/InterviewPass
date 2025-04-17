@@ -1,5 +1,6 @@
 import { HClockIn } from '../commons/components/HClockIn'
 import { HSearch } from '../commons/components/HSearch'
+import { HomeCategory } from '../views/home/HomeCategory'
 
 @Component
 export struct HomePage {
@@ -55,6 +56,9 @@ export struct HomePage {
         .itemHeight(4)
         .selectedItemWidth(10)
         .selectedColor($r('app.color.white')))
+
+      // 分类
+      HomeCategory()
     }
     .padding({
       top: this.topHeight
