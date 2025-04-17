@@ -4,6 +4,7 @@ import { auth, UserStoreKey } from '../commons/utils/Auth'
 import { formatTime } from '../commons/utils/Index'
 import { statusBar } from '../commons/utils/StatusBar'
 import { User } from '../models'
+import emitter from '@ohos.events.emitter'
 
 interface Nav {
   icon: ResourceStr
@@ -187,6 +188,15 @@ export struct MinePage {
           const user = auth.getUser()
           user.token = '1111111111111'
           auth.setUser(user)
+        })
+      Button('触发事件')
+        .onClick(() => {
+          // emitter.emit('事件名称'，数据)
+          emitter.emit('test', {
+            data: {
+              name: 'jack'
+            }
+          })
         })
 
     }

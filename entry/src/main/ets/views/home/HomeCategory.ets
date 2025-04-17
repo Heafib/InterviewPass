@@ -3,6 +3,8 @@ import { HSkeletonItem } from '../../commons/components/HSkeletonItem'
 import { QuestionListComp } from '../../commons/components/QuestionListComp'
 import { httpClient } from '../../commons/utils/HttpClient'
 import { QuestionType, SortType } from '../../models'
+import emitter from '@ohos.events.emitter'
+import { LOGIN_EVENT_NAME } from '../../commons/constants/Index'
 
 @Component
 export struct HomeCategory {
@@ -114,6 +116,11 @@ export struct HomeCategory {
 
   aboutToAppear(): void {
     this.getQuestionTypeList()
+    emitter.on(LOGIN_EVENT_NAME, (event) => {
+      // emitter.emit('test') 触发事件，就会执行该回调函数
+      // logger.info('emitter', JSON.stringify(event.data))
+      this.getQuestionTypeList()
+    })
   }
 
   async getQuestionTypeList() {
