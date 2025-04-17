@@ -1,6 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios'
+import { User } from '../../models'
 import { auth } from './Auth'
 import { logger } from './Logger'
+import { promptAction, router } from '@kit.ArkUI'
 
 const instance = axios.create({
   baseURL: 'https://api-harmony-teach.itheima.net/hm/',
@@ -35,6 +37,17 @@ instance.interceptors.response.use((res: AxiosResponse) => {
   }
   return Promise.reject(res.data)
 }, (err: AxiosError) => {
+  logger.error('req_error', JSON.stringify(err))
+  if (err.response?.status === 401) {
+    // token失效
+    auth.setUser({} as User)
+    router.pushUrl({
+      url: 'pages/LoginPage'
+    }, router.RouterMode.Single)
+    promptAction.showToast({
+      message: '登录失效'
+    })
+  }
   return Promise.reject(err)
 })
 // 请求拦截器

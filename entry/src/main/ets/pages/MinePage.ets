@@ -182,6 +182,12 @@ export struct MinePage {
         .onClick(() => {
           auth.setUser({} as User)
         })
+      Button('模拟token失效')
+        .onClick(() => {
+          const user = auth.getUser()
+          user.token = '1111111111111'
+          auth.setUser(user)
+        })
 
     }
     .padding(16)
