@@ -24,6 +24,10 @@ export struct HomeCategory {
           .fontSize(16)
           .fontWeight(500)
           .fontColor($r('app.color.common_gray_03'))
+          .onClick(() => {
+            this.filterDateSort = SortType.Default
+            this.filterDataIndex = 0
+          })
         Text('筛选题目')
           .layoutWeight(1)
           .fontSize(18)
@@ -56,7 +60,7 @@ export struct HomeCategory {
             if (this.filterDateSort === SortType.ViewLow || this.filterDateSort === SortType.ViewHigh) {
               this.filterDateSort = this.filterDateSort === SortType.ViewLow ? SortType.ViewHigh : SortType.ViewLow
             } else {
-              this.filterDateSort = SortType.ViewLow
+              this.filterDateSort = SortType.ViewHigh
             }
           })
         FilterButton({
@@ -71,7 +75,7 @@ export struct HomeCategory {
               this.filterDateSort =
                 this.filterDateSort === SortType.DifficultyLow ? SortType.DifficultyHigh : SortType.DifficultyLow
             } else {
-              this.filterDateSort = SortType.DifficultyLow
+              this.filterDateSort = SortType.DifficultyHigh
             }
           })
         FilterButton({ text: '推荐', selected: this.filterDateSort === SortType.Commend })
@@ -216,13 +220,13 @@ struct FilterButton {
             .size({
               width: 12, height: 6
             })
-            .fillColor((this.selected && this.sort % 2 === 1) ? $r('app.color.common_main_color') :
+            .fillColor((this.selected && this.sort % 2 === 0) ? $r('app.color.common_main_color') :
             $r('app.color.black'))
           Image($r('sys.media.ohos_ic_public_arrow_down'))
             .size({
               width: 12, height: 6
             })
-            .fillColor((this.selected && this.sort % 2 === 0) ? $r('app.color.common_main_color') :
+            .fillColor((this.selected && this.sort % 2 === 1) ? $r('app.color.common_main_color') :
             $r('app.color.black'))
         }
         .margin({
