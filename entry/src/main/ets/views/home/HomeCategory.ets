@@ -35,10 +35,21 @@ export struct HomeCategory {
       Text('题目排序')
         .textTitle()
       // TODO 筛选按钮
+      Flex({ wrap: FlexWrap.Wrap }) {
+        FilterButton({ text: '默认' })
+        FilterButton({ text: '浏览量', isSort: true })
+        FilterButton({ text: '难度', isSort: true })
+        FilterButton({ text: '推荐' })
+      }
 
       Text('选择分类')
         .textTitle()
       // TODO 筛选按钮
+      Flex({ wrap: FlexWrap.Wrap }) {
+        ForEach(this.questionTypeList, (item: QuestionType) => {
+          FilterButton({ text: item.name, isNew: item.displayNewestFlag === 1 })
+        })
+      }
     }
     .padding(16)
     .backgroundColor($r('app.color.white'))
@@ -136,5 +147,56 @@ function textTitle() {
   .fontWeight(500)
   .fontColor($r('app.color.black'))
   .width('100%')
-  .margin({ top: 20 })
+  .margin({ top: 20, bottom: 12 })
+}
+
+@Component
+struct FilterButton {
+  @Prop
+  text: string = ''
+  @Prop
+  isSort: boolean = false
+  @Prop
+  isNew: boolean = false
+
+  build() {
+    Row() {
+      Text(this.text)
+        .fontSize(12)
+        .fontColor($r('app.color.black'))
+      if (this.isSort) {
+        Column() {
+          Image($r('sys.media.ohos_ic_public_arrow_up'))
+            .size({
+              width: 12, height: 6
+            })
+          Image($r('sys.media.ohos_ic_public_arrow_down'))
+            .size({
+              width: 12, height: 6
+            })
+        }
+        .margin({
+          left: 2
+        })
+      }
+      if (this.isNew) {
+        Image($r('app.media.ic_home_new'))
+          .width(32)
+          .height(14)
+          .objectFit(ImageFit.Contain)
+          .position({ right: -26, top: -7 })
+      }
+    }
+    .height(32)
+    .padding({
+      left: 10,
+      right: 10
+    })
+    .borderRadius(4)
+    .backgroundColor($r('app.color.common_gray_bg'))
+    .margin({
+      bottom: 12,
+      right: this.isNew ? 26 : 10
+    })
+  }
 }
