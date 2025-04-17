@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from '@ohos/axios'
+import { logger } from './Logger'
 
 const instance = axios.create({
   baseURL: 'https://api-harmony-teach.itheima.net/hm/',
@@ -27,6 +28,7 @@ const instance = axios.create({
 //拦截器
 instance.interceptors.response.use((res: AxiosResponse) => {
   // 返回数据，是将来请求得到的数据
+  logger.info('HttpClient 响应', JSON.stringify(res.data))
   if (res.data.code === 10000) {
     return res.data.data
   }
@@ -38,6 +40,7 @@ instance.interceptors.response.use((res: AxiosResponse) => {
 class HttpClient {
   // 请求参数和响应类型 泛型
   request<Res, Req = Object>(config: AxiosRequestConfig<Req>) {
+    logger.info('HttpClient 请求', JSON.stringify(config))
     return instance <null, Res, Req>(config)
   }
 }

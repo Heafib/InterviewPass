@@ -1,5 +1,7 @@
-import { QuestionItem } from '../../models'
+import { PageData, QuestionItem, QuestionListParams, SortType } from '../../models'
+import { httpClient } from '../utils/HttpClient'
 import { QuestionItemComp } from './QuestionItemComp'
+import { promptAction } from '@kit.ArkUI'
 
 @Component
 export struct QuestionListComp {
@@ -11,25 +13,55 @@ export struct QuestionListComp {
   isFinish: boolean = false
   @State
   list: QuestionItem[] = []
+  @Prop
+  typeId: number
+  @Prop
+  sort: SortType = SortType.Default
+  @Prop
+  page: number
 
-  onRefresh() {
-    // 模拟刷新
-    setTimeout(() => {
-      this.isRefresh = false
-    }, 1000)
+  // 获取试题列表
+  getQuestionList(): Promise<PageData<QuestionItem>> {
+    return httpClient.request<PageData<QuestionItem>>({
+      url: 'question/list',
+      params: {
+        type: this.typeId,
+        questionBankType: 10,
+        sort: this.sort,
+        page: 10
+      } as QuestionListParams
+    })
   }
 
-  onLoad() {
+  async onRefresh() {
+    // 更新第一页数据
+    this.page = 1
+    const res = await this.getQuestionList()
+    this.list = res.rows
+    this.isRefresh = false
+    // 有没有更多数据
+    if (this.page >= res.pageTotal) {
+      this.isFinish = true
+    } else {
+      this.isFinish = false
+      this.page++
+    }
+    promptAction.showToast({
+      message: '已更新'
+    })
+  }
+
+  async onLoad() {
     this.isLoading = true
-    setTimeout(() => {
-      for (let index = 0; index < 10; index++) {
-        this.list.push({} as QuestionItem)
-      }
-      this.isLoading = false
-      if (this.list.length >= 40) {
-        this.isFinish = true
-      }
-    }, 1000)
+    const res = await this.getQuestionList()
+    this.list.push(...res.rows)
+    this.isLoading = false
+    // 有没有更多数据
+    if (this.page >= res.pageTotal) {
+      this.isFinish = true
+    } else {
+      this.page++
+    }
   }
 
   @Builder
@@ -62,17 +94,10 @@ export struct QuestionListComp {
   build() {
     Refresh({ refreshing: $$this.isRefresh }) {
       List() {
-        ForEach(this.list, () => {
+        ForEach(this.list, (item: QuestionItem) => {
           ListItem() {
             QuestionItemComp({
-              item: {
-                id: '100',
-                stem: '请说下ArkUI的容器组件有哪些？',
-                difficulty: 3,
-                likeCount: 23,
-                views: 423,
-                readFlag: 1
-              }
+              item
             })
           }
         })
