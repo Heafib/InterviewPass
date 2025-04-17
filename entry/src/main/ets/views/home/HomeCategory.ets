@@ -1,6 +1,6 @@
 import { QuestionListComp } from '../../commons/components/QuestionListComp'
 import { httpClient } from '../../commons/utils/HttpClient'
-import { QuestionType } from '../../models'
+import { QuestionType, SortType } from '../../models'
 
 @Component
 export struct HomeCategory {
@@ -10,6 +10,11 @@ export struct HomeCategory {
   questionTypeList: QuestionType[] = []
   @State
   show: boolean = false
+  //支持筛选
+  @State
+  filterDateSort: SortType = SortType.Default
+  @State
+  filterDataIndex: number = 0
 
   @Builder
   FilterSheetBuilder() {
@@ -36,18 +41,54 @@ export struct HomeCategory {
         .textTitle()
       // TODO 筛选按钮
       Flex({ wrap: FlexWrap.Wrap }) {
-        FilterButton({ text: '默认' })
-        FilterButton({ text: '浏览量', isSort: true })
-        FilterButton({ text: '难度', isSort: true })
-        FilterButton({ text: '推荐' })
+        FilterButton({ text: '默认', selected: this.filterDateSort === SortType.Default })
+          .onClick(() => {
+            this.filterDateSort = SortType.Default
+          })
+        FilterButton({
+          text: '浏览量',
+          sort: this.filterDateSort,
+          isSort: true,
+          selected: this.filterDateSort === SortType.ViewLow || this.filterDateSort === SortType.ViewHigh
+        })
+          .onClick(() => {
+            // 已选中
+            if (this.filterDateSort === SortType.ViewLow || this.filterDateSort === SortType.ViewHigh) {
+              this.filterDateSort = this.filterDateSort === SortType.ViewLow ? SortType.ViewHigh : SortType.ViewLow
+            } else {
+              this.filterDateSort = SortType.ViewLow
+            }
+          })
+        FilterButton({
+          text: '难度',
+          sort: this.filterDateSort,
+          isSort: true,
+          selected: this.filterDateSort === SortType.DifficultyLow || this.filterDateSort === SortType.DifficultyHigh
+        })
+          .onClick(() => {
+            // 已选中
+            if (this.filterDateSort === SortType.DifficultyLow || this.filterDateSort === SortType.DifficultyHigh) {
+              this.filterDateSort =
+                this.filterDateSort === SortType.DifficultyLow ? SortType.DifficultyHigh : SortType.DifficultyLow
+            } else {
+              this.filterDateSort = SortType.DifficultyLow
+            }
+          })
+        FilterButton({ text: '推荐', selected: this.filterDateSort === SortType.Commend })
+          .onClick(() => {
+            this.filterDateSort = SortType.Commend
+          })
       }
 
       Text('选择分类')
         .textTitle()
       // TODO 筛选按钮
       Flex({ wrap: FlexWrap.Wrap }) {
-        ForEach(this.questionTypeList, (item: QuestionType) => {
-          FilterButton({ text: item.name, isNew: item.displayNewestFlag === 1 })
+        ForEach(this.questionTypeList, (item: QuestionType, i) => {
+          FilterButton({ text: item.name, isNew: item.displayNewestFlag === 1, selected: this.filterDataIndex === i })
+            .onClick(() => {
+              this.filterDataIndex = i
+            })
         })
       }
     }
@@ -158,22 +199,31 @@ struct FilterButton {
   isSort: boolean = false
   @Prop
   isNew: boolean = false
+  @Prop
+  selected: boolean = false
+  @Prop
+  sort: SortType = SortType.Default
 
   build() {
     Row() {
       Text(this.text)
         .fontSize(12)
-        .fontColor($r('app.color.black'))
+        .fontColor(this.selected ? $r('app.color.common_main_color') : $r('app.color.black'))
       if (this.isSort) {
+        // 偶数升序 奇数降序
         Column() {
           Image($r('sys.media.ohos_ic_public_arrow_up'))
             .size({
               width: 12, height: 6
             })
+            .fillColor((this.selected && this.sort % 2 === 1) ? $r('app.color.common_main_color') :
+            $r('app.color.black'))
           Image($r('sys.media.ohos_ic_public_arrow_down'))
             .size({
               width: 12, height: 6
             })
+            .fillColor((this.selected && this.sort % 2 === 0) ? $r('app.color.common_main_color') :
+            $r('app.color.black'))
         }
         .margin({
           left: 2
