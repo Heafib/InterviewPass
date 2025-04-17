@@ -1,4 +1,5 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from '@ohos/axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios'
+import { auth } from './Auth'
 import { logger } from './Logger'
 
 const instance = axios.create({
@@ -25,7 +26,7 @@ const instance = axios.create({
 // }).then(res => {
 //   res.data.data
 // })
-//拦截器
+//响应拦截器
 instance.interceptors.response.use((res: AxiosResponse) => {
   // 返回数据，是将来请求得到的数据
   logger.info('HttpClient 响应', JSON.stringify(res.data))
@@ -33,6 +34,16 @@ instance.interceptors.response.use((res: AxiosResponse) => {
     return res.data.data
   }
   return Promise.reject(res.data)
+}, (err: AxiosError) => {
+  return Promise.reject(err)
+})
+// 请求拦截器
+instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const user = auth.getUser()
+  if (user.token) {
+    config.headers.Authorization = 'Bearer ' + user.token
+  }
+  return config
 }, (err: AxiosError) => {
   return Promise.reject(err)
 })
