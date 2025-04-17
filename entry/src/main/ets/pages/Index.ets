@@ -53,6 +53,7 @@ struct Index {
           }.tabBar(this.TabItemBuilder(item, index))
         })
       }
+      .divider({ strokeWidth: 0.5, color: $r('app.color.common_gray_border') })
       .scrollable(false)
       .onTabBarClick((index) => {
         this.activeIndex = index
