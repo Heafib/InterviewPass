@@ -2,6 +2,7 @@ import { HNavBar } from '../commons/components/HNavBar'
 import { promptAction, router } from '@kit.ArkUI'
 import { httpClient } from '../commons/utils/HttpClient'
 import { User } from '../models'
+import { auth } from '../commons/utils/Auth'
 
 interface LoginParam {
   username: string
@@ -50,7 +51,8 @@ struct LoginPage {
       })
       this.loading = false
       // 3.成功 存储
-      AppStorage.setOrCreate<User>('user', user)
+      auth.setUser(user)
+      // AppStorage.setOrCreate<User>('user', user)
       // 用户+跳转
       router.back()
     } catch (e) {
