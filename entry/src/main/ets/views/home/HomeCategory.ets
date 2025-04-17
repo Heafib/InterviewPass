@@ -1,3 +1,5 @@
+import { HSkeleton } from '../../commons/components/HSkeleton'
+import { HSkeletonItem } from '../../commons/components/HSkeletonItem'
 import { QuestionListComp } from '../../commons/components/QuestionListComp'
 import { httpClient } from '../../commons/utils/HttpClient'
 import { QuestionType, SortType } from '../../models'
@@ -17,6 +19,8 @@ export struct HomeCategory {
   filterDateSort: SortType = SortType.Default
   @State
   filterDataIndex: number = 0
+  @State
+  loading: boolean = false
 
   @Builder
   FilterSheetBuilder() {
@@ -113,8 +117,10 @@ export struct HomeCategory {
   }
 
   async getQuestionTypeList() {
+    this.loading = true
     const res = await httpClient.request<QuestionType[]>({ url: 'question/type' })
     this.questionTypeList = res
+    this.loading = false
   }
 
   @Builder
@@ -148,28 +154,61 @@ export struct HomeCategory {
 
   }
 
-  build() {
-    Stack({ alignContent: Alignment.TopEnd }) {
-      Tabs({ index: this.activeIndex }) {
-        ForEach(this.questionTypeList, (item: QuestionType, index) => {
-          TabContent() {
-            // 试题列表组件（上拉，下拉）
-            QuestionListComp({
-              typeId: item.id,
-              sort: this.sort,
-              activeIndex: this.activeIndex,
-              index: index
-            })
+  @Builder
+  SkeletonBuilder() {
+    HSkeleton() {
+      Column() {
+        Row({ space: 16 }) {
+          HSkeletonItem({ widthValue: 50 })
+          HSkeletonItem({ widthValue: 80 })
+          HSkeletonItem({ widthValue: 60 })
+          HSkeletonItem({ widthValue: 50 })
+        }
+        .height(44)
+
+        ForEach([1, 2, 3, 4, 5, 6], () => {
+          Column({ space: 10 }) {
+            HSkeletonItem({ widthValue: '90%' })
+            HSkeletonItem({ widthValue: '50%' })
           }
-          .tabBar(this.TabBarBuilder(item, index))
+          .height(80)
+          .alignItems(HorizontalAlign.Start)
         })
       }
-      .divider({ strokeWidth: 0.5, color: $r('app.color.common_gray_border') })
-      .barMode(BarMode.Scrollable)
-      .barHeight(44)
-      .onTabBarClick((index) => {
-        this.activeIndex = index
-      })
+      .alignItems(HorizontalAlign.Start)
+      .padding({ left: 16, right: 16 })
+      .width('100%')
+    }
+  }
+
+  build() {
+    Stack({ alignContent: Alignment.TopEnd }) {
+
+      if (this.loading) {
+        this.SkeletonBuilder()
+      } else {
+        Tabs({ index: this.activeIndex }) {
+          ForEach(this.questionTypeList, (item: QuestionType, index) => {
+            TabContent() {
+              // 试题列表组件（上拉，下拉）
+              QuestionListComp({
+                typeId: item.id,
+                sort: this.sort,
+                activeIndex: this.activeIndex,
+                index: index
+              })
+            }
+            .tabBar(this.TabBarBuilder(item, index))
+          })
+        }
+        .divider({ strokeWidth: 0.5, color: $r('app.color.common_gray_border') })
+        .barMode(BarMode.Scrollable)
+        .barHeight(44)
+        .onTabBarClick((index) => {
+          this.activeIndex = index
+        })
+      }
+
 
       //筛选按钮
       Row() {
