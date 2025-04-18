@@ -1,6 +1,7 @@
 import { HClockIn } from '../commons/components/HClockIn'
 import { HSearch } from '../commons/components/HSearch'
 import { HomeCategory } from '../views/home/HomeCategory'
+import { auth } from '../commons/utils/Auth'
 
 @Component
 export struct HomePage {
@@ -28,6 +29,11 @@ export struct HomePage {
         Image($r('app.media.ic_home_scan'))
           .width(24)
           .aspectRatio(1)
+          .onClick(() => {
+            auth.checkAuth(() => {
+              console.log('扫描')
+            })
+          })
         //搜索盒子
         HSearch({ layoutWeightValue: 1 })
         // 打卡

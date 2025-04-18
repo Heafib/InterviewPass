@@ -57,7 +57,15 @@ struct LoginPage {
       emitter.emit(LOGIN_EVENT_NAME)
       // AppStorage.setOrCreate<User>('user', user)
       // 用户+跳转
-      router.back()
+      const param = router.getParams() as Record<string, string> || {}
+      if (param.returnUrl) {
+        router.replaceUrl({
+          url: param.returnUrl,
+          params: param
+        })
+      } else {
+        router.back()
+      }
     } catch (e) {
       // 4.失败 提示错误信息
       this.loading = false

@@ -1,7 +1,15 @@
+import { logger } from '../commons/utils/Logger';
+import { router } from '@kit.ArkUI';
+import { JSON } from '@kit.ArkTS';
+
 @Entry
 @Component
 struct QuestionPage {
   @State message: string = 'Hello World';
+
+  aboutToAppear(): void {
+    logger.debug('QuestionPage Param', JSON.stringify(router.getParams()))
+  }
 
   build() {
     RelativeContainer() {

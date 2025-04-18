@@ -2,6 +2,11 @@ import { PageData, QuestionItem, QuestionListParams, SortType } from '../../mode
 import { httpClient } from '../utils/HttpClient'
 import { QuestionItemComp } from './QuestionItemComp'
 import { promptAction } from '@kit.ArkUI'
+import { auth } from '../utils/Auth'
+
+interface Params {
+  id: string
+}
 
 @Component
 export struct QuestionListComp {
@@ -111,6 +116,12 @@ export struct QuestionListComp {
             QuestionItemComp({
               item
             })
+              .onClick(() => {
+                auth.checkAuth({
+                  url: 'pages/QuestionPage',
+                  params: { id: item.id } as Params
+                })
+              })
           }
         })
         // 加载更多
