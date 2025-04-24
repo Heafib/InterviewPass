@@ -36,6 +36,7 @@ export interface QuestionDetail extends QuestionItem {
 
 export interface QuestionDetailParams {
   item: QuestionItem
+  list: QuestionItem[]
 }
 
 export interface QuestionOptParams {

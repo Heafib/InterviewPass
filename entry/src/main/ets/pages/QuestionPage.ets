@@ -13,6 +13,10 @@ struct QuestionPage {
   @StorageProp('bottomHeight') bottomHeight: number = 0
   @State
   item: QuestionDetail = {} as QuestionDetail
+  @State
+  list: QuestionDetail[] = []
+  @State
+  activeIndex: number = 0
   webController = new webview.WebviewController()
   dialog = new CustomDialogController({
     builder: HLoadingDialog(),
@@ -24,7 +28,10 @@ struct QuestionPage {
     const params = router.getParams() as QuestionDetailParams
     if (params) {
       this.item = params.item as QuestionDetail
+      this.list = params.list as QuestionDetail[] // 里面数据并不是完整的
+      this.activeIndex = this.list.findIndex(item => item.id === this.item.id)
       this.item = await this.getQuestionDetail(this.item.id)
+      this.list[this.activeIndex] = this.item
       this.webController.loadUrl($rawfile('question.html'))
     }
   }
@@ -73,6 +80,28 @@ struct QuestionPage {
         message: '操作失败'
       })
     }
+  }
+
+  async toggle(step: number) {
+    const index = this.activeIndex + step
+    if (index < 0 || index > this.list.length - 1) {
+      return promptAction.showToast({
+        message: '没有更多了'
+      })
+    }
+    this.activeIndex = index
+    const item = this.list[index]
+    if (item.answer) {
+      // 如果列表中根据索引查处的试题是完整的，直接赋值给item
+      this.item = item
+    } else {
+      // 如果不是完整的，发请求获取，存储到数组中再赋值给item
+      const fullItem = await this.getQuestionDetail(item.id)
+      this.list[index] = fullItem
+      this.item = fullItem
+    }
+    // 切换答案
+    this.webController.runJavaScript(`writeHtml(\`${this.item.answer}\`)`)
   }
 
   @Builder
@@ -155,19 +184,28 @@ struct QuestionPage {
           Image($r('sys.media.ohos_ic_public_arrow_left'))
             .width(20)
             .aspectRatio(1)
-            .fillColor($r('app.color.common_gray_01'))
+            .fillColor(this.activeIndex <= 0 ? $r('app.color.common_gray_01') : $r('app.color.common_gray_03'))
           Text(' 上一题')
-            .fontColor($r('app.color.common_gray_01'))
+            .fontColor(this.activeIndex <= 0 ? $r('app.color.common_gray_01') : $r('app.color.common_gray_03'))
         }
+        .onClick(() => {
+
+          this.toggle(-1)
+        })
 
         Row() {
           Text('下一题 ')
-            .fontColor($r('app.color.common_gray_03'))
+            .fontColor(this.activeIndex >= this.list.length - 1 ? $r('app.color.common_gray_01') :
+            $r('app.color.common_gray_03'))
           Image($r('sys.media.ohos_ic_public_arrow_right'))
             .width(20)
             .aspectRatio(1)
-            .fillColor($r('app.color.common_gray_03'))
+            .fillColor(this.activeIndex >= this.list.length - 1 ? $r('app.color.common_gray_01') :
+            $r('app.color.common_gray_03'))
         }
+        .onClick(() => {
+          this.toggle(1)
+        })
       }
       .height(44)
       .width('100%')

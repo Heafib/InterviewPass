@@ -116,7 +116,7 @@ export struct QuestionListComp {
               .onClick(() => {
                 auth.checkAuth({
                   url: 'pages/QuestionPage',
-                  params: { item: item } as QuestionDetailParams
+                  params: { item: item, list: this.list } as QuestionDetailParams
                 })
               })
           }
