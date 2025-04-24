@@ -4,6 +4,7 @@ import { QuestionDetail, QuestionDetailParams } from '../models'
 import { router } from '@kit.ArkUI'
 import { httpClient } from '../commons/utils/HttpClient'
 import { webview } from '@kit.ArkWeb'
+import { HLoadingDialog } from '../commons/components/HLoadingDialog'
 
 
 @Entry
@@ -23,9 +24,21 @@ struct QuestionPage {
     }
   }
 
+  dialog = new CustomDialogController({
+    builder: HLoadingDialog(),
+    customStyle: true,
+    alignment: DialogAlignment.Center
+  })
+
   async getQuestionDetail(id: string) {
+    this.dialog.open()
     const res = await httpClient.request<QuestionDetail>({ url: `/question/${id}` })
+    this.dialog.close()
     return res
+  }
+
+  onPageHide(): void {
+    this.dialog.close()
   }
 
   @Builder
