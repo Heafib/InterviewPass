@@ -1,12 +1,9 @@
-import { PageData, QuestionItem, QuestionListParams, SortType } from '../../models'
+import { PageData, QuestionDetailParams, QuestionItem, QuestionListParams, SortType } from '../../models'
 import { httpClient } from '../utils/HttpClient'
 import { QuestionItemComp } from './QuestionItemComp'
 import { promptAction } from '@kit.ArkUI'
 import { auth } from '../utils/Auth'
 
-interface Params {
-  id: string
-}
 
 @Component
 export struct QuestionListComp {
@@ -119,7 +116,7 @@ export struct QuestionListComp {
               .onClick(() => {
                 auth.checkAuth({
                   url: 'pages/QuestionPage',
-                  params: { id: item.id } as Params
+                  params: { item: item } as QuestionDetailParams
                 })
               })
           }
