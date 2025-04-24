@@ -38,6 +38,14 @@ export interface QuestionDetailParams {
   item: QuestionItem
 }
 
+export interface QuestionOptParams {
+  id: string
+  /* 0 试题  2 面经 */
+  type: 0 | 1
+  /* 1 点赞  2 收藏 */
+  optType: 1 | 2
+}
+
 export interface PageData<T> {
   total: number
   pageTotal: number

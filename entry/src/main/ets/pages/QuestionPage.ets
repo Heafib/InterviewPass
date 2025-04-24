@@ -1,7 +1,7 @@
 import { HNavBar } from '../commons/components/HNavBar'
 import { HTag } from '../commons/components/HTag'
-import { QuestionDetail, QuestionDetailParams } from '../models'
-import { router } from '@kit.ArkUI'
+import { QuestionDetail, QuestionDetailParams, QuestionOptParams } from '../models'
+import { promptAction, router } from '@kit.ArkUI'
 import { httpClient } from '../commons/utils/HttpClient'
 import { webview } from '@kit.ArkWeb'
 import { HLoadingDialog } from '../commons/components/HLoadingDialog'
@@ -14,6 +14,11 @@ struct QuestionPage {
   @State
   item: QuestionDetail = {} as QuestionDetail
   webController = new webview.WebviewController()
+  dialog = new CustomDialogController({
+    builder: HLoadingDialog(),
+    customStyle: true,
+    alignment: DialogAlignment.Center
+  })
 
   async aboutToAppear() {
     const params = router.getParams() as QuestionDetailParams
@@ -24,12 +29,6 @@ struct QuestionPage {
     }
   }
 
-  dialog = new CustomDialogController({
-    builder: HLoadingDialog(),
-    customStyle: true,
-    alignment: DialogAlignment.Center
-  })
-
   async getQuestionDetail(id: string) {
     this.dialog.open()
     const res = await httpClient.request<QuestionDetail>({ url: `/question/${id}` })
@@ -39,6 +38,41 @@ struct QuestionPage {
 
   onPageHide(): void {
     this.dialog.close()
+  }
+
+  // 点赞 收藏 取消点赞 取消收藏
+  async questionOpt(optType: 1 | 2, flag: 0 | 1) {
+    try {
+      // 1. 准备参数
+      const data: QuestionOptParams = {
+        id: this.item.id,
+        type: 0,
+        optType
+      }
+      // 2. 发送请求
+      await httpClient.request<null, QuestionOptParams>({
+        url: flag === 1 ? '/question/opt' : '/question/unOpt',
+        method: 'post',
+        data
+      })
+      // 3. 更改状态
+      if (optType === 1) {
+        this.item.likeFlag = flag
+        promptAction.showToast({
+          message: flag === 1 ? '点赞成功' : '取消点赞'
+        })
+      }
+      if (optType === 2) {
+        this.item.collectFlag = flag
+        promptAction.showToast({
+          message: flag === 1 ? '收藏成功' : '取消收藏'
+        })
+      }
+    } catch (e) {
+      promptAction.showToast({
+        message: '操作失败'
+      })
+    }
   }
 
   @Builder
@@ -60,8 +94,14 @@ struct QuestionPage {
   @Builder
   MenuBuilder() {
     Menu() {
-      MenuItem({ content: '点赞' })
-      MenuItem({ content: '收藏' })
+      MenuItem({ content: this.item.likeFlag ? '取消点赞' : '点赞' })
+        .onClick(() => {
+          this.questionOpt(1, this.item.likeFlag === 1 ? 0 : 1)
+        })
+      MenuItem({ content: this.item.collectFlag ? '取消收藏' : '收藏' })
+        .onClick(() => {
+          this.questionOpt(2, this.item.collectFlag === 1 ? 0 : 1)
+        })
       MenuItem({ content: '点我反馈' })
       MenuItem({ content: '试题分享' })
     }
