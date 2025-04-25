@@ -178,6 +178,7 @@ export struct MinePage {
       .backgroundColor($r('app.color.white'))
       .borderRadius(8)
 
+      Text('学习时间---' + this.user.totalTime)
       // 测试清楚token
       Button('清除用户')
         .onClick(() => {

@@ -81,3 +81,9 @@ export interface User {
   // 打卡次数
   clockinNumbers?: number
 }
+
+export interface TimeItem {
+  questionId: string
+  startTime: number
+  endTime: number
+}

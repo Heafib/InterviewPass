@@ -6,6 +6,7 @@ import { httpClient } from '../commons/utils/HttpClient'
 import { webview } from '@kit.ArkWeb'
 import { HLoadingDialog } from '../commons/components/HLoadingDialog'
 import { QuestionShareDialog } from '../views/question/QuestionShareDialog'
+import { tracking } from '../commons/utils/Tracking'
 
 
 @Entry
@@ -18,6 +19,7 @@ struct QuestionPage {
   list: QuestionDetail[] = []
   @State
   activeIndex: number = 0
+  startTime: number = Date.now()
   webController = new webview.WebviewController()
   dialog = new CustomDialogController({
     builder: HLoadingDialog(),
@@ -29,6 +31,16 @@ struct QuestionPage {
     customStyle: true,
     alignment: DialogAlignment.Center
   })
+
+  onPageShow(): void {
+    this.startTime = Date.now()
+  }
+
+  onPageHide(): void {
+    this.dialog.close()
+    tracking.record(this.item.id, this.startTime, Date.now())
+    tracking.report()
+  }
 
   async aboutToAppear() {
     const params = router.getParams() as QuestionDetailParams
@@ -52,10 +64,6 @@ struct QuestionPage {
     const res = await httpClient.request<QuestionDetail>({ url: `/question/${id}` })
     this.dialog.close()
     return res
-  }
-
-  onPageHide(): void {
-    this.dialog.close()
   }
 
   // 点赞 收藏 取消点赞 取消收藏
@@ -100,6 +108,11 @@ struct QuestionPage {
         message: '没有更多了'
       })
     }
+
+    //记录学习时间
+    tracking.record(this.item.id, this.startTime, Date.now())
+    this.startTime = Date.now()
+
     this.activeIndex = index
     const item = this.list[index]
     if (item.answer) {
