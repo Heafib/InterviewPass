@@ -1,5 +1,6 @@
 import { router } from '@kit.ArkUI'
 import { QuestionListComp } from '../commons/components/QuestionListComp'
+import { history } from '../commons/utils/History'
 import { SearchHistory } from '../views/search/SearchHistory'
 
 @Entry
@@ -21,6 +22,7 @@ struct SearchPage {
             if (val) {
               this.keyword = val
               this.isSearch = true
+              history.setItem(val)
             }
           })
           .onChange((val) => {
