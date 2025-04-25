@@ -1,5 +1,7 @@
 import { HNavBar } from '../commons/components/HNavBar'
-import { HmCalendar } from '@ohmos/calendar'
+import { HmCalendar, HmCalendarSelectedDay } from '@ohmos/calendar'
+import { httpClient } from '../commons/utils/HttpClient'
+import { ClockInfo, ClockInfoParams } from '../models'
 
 
 interface DayBuilderParams {
@@ -7,9 +9,40 @@ interface DayBuilderParams {
   text: string
 }
 
+
 @Entry
 @Component
 struct ClockInPage {
+  @State
+  info: ClockInfo = {
+    flag: false,
+    clockinNumbers: 0,
+    totalClockinNumber: 0,
+    clockins: []
+  }
+  @State
+  selectDates: HmCalendarSelectedDay[] = []
+
+  aboutToAppear(): void {
+    const now = new Date()
+    this.getClockInfo(now.getFullYear().toString(), now.getMonth() + 1 + '')
+  }
+
+  async getClockInfo(year: string, month: string) {
+    const res = await httpClient.request<ClockInfo>({
+      url: 'clockinInfo',
+      params: {
+        year,
+        month
+      } as ClockInfoParams
+    })
+    this.info = res
+    // 打卡选中
+    this.selectDates = res.clockins.map(e => ({
+      date: e.createdAt
+    }) as HmCalendarSelectedDay)
+  }
+
   @Builder
   dayBuilder(params: DayBuilderParams) {
     Column() {
@@ -34,8 +67,8 @@ struct ClockInPage {
     Column({ space: 16 }) {
       HNavBar({ title: '每日打卡', showRightIcon: false })
       Row() {
-        this.dayBuilder({ day: 100, text: '累计打卡' })
-        this.dayBuilder({ day: 10, text: '连续打卡' })
+        this.dayBuilder({ day: this.info.totalClockinNumber, text: '累计打卡' })
+        this.dayBuilder({ day: this.info.clockinNumbers, text: '连续打卡' })
       }
       .padding({
         top: 10,
@@ -48,7 +81,12 @@ struct ClockInPage {
 
       Row() {
         HmCalendar({
-          selectedDays: [{ date: '2025-04-25' }]
+          selectedDays: this.selectDates,
+          onChangeMonth: (date) => {
+            //
+            const arr = date.split('-')
+            this.getClockInfo(arr[0], arr[1])
+          }
         })
           .width('100%')
           .height(350)
