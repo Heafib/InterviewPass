@@ -1,10 +1,30 @@
+import { HLoadingDialog } from '../commons/components/HLoadingDialog'
 import { HNavBar } from '../commons/components/HNavBar'
+import { StudyTimeData, StudyTimeItem } from '../models'
+import { httpClient } from '../commons/utils/HttpClient'
+import { calcPercentage, formatTime } from '../commons/utils/Index'
 
 
 @Entry
 @Component
 struct StudyTimePage {
   @StorageProp('bottomHeight') bottomHeight: number = 0
+  @State data: StudyTimeData = {
+    totalTime: 0,
+    studyData: []
+  }
+  dialog: CustomDialogController = new CustomDialogController({
+    builder: HLoadingDialog({ message: '加载中...' }),
+    customStyle: true,
+    alignment: DialogAlignment.Center
+  })
+
+  async aboutToAppear() {
+    this.dialog.open()
+    const res = await httpClient.request<StudyTimeData>({ url: 'studyInfo' })
+    this.data = res
+    this.dialog.close()
+  }
 
   @Builder
   ProgressBuilder(title: string, done: number, total: number, color: string = '#87E0CD') {
@@ -14,7 +34,7 @@ struct StudyTimePage {
           Text(title)
             .fontColor($r('app.color.common_gray_01'))
             .fontSize(14)
-          Text('10%')
+          Text(calcPercentage(done, total))
             .fontColor($r('app.color.common_gray_01'))
             .fontSize(14)
         }
@@ -65,11 +85,11 @@ struct StudyTimePage {
               .margin({ bottom: 10 })
 
               Row() {
-                Text('100')
+                Text(formatTime(this.data.totalTime).replace(/分钟|小时|天/, ''))
                   .fontSize(40)
                   .fontWeight(FontWeight.Bold)
                   .fontColor($r('app.color.common_green'))
-                Text('分钟')
+                Text(formatTime(this.data.totalTime).replace(/\d|\./g, ''))
                   .margin({ bottom: 8, left: 8 })
                   .fontColor($r('app.color.common_green'))
               }
@@ -78,49 +98,52 @@ struct StudyTimePage {
             }
 
             // knowledge
-            Text('知识点学习进度')
-              .margin({ bottom: 10, top: 30 })
-              .width('100%')
-            GridRow({ columns: 2, gutter: 20 }) {
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              this.ProgressBuilder('ArkTS', 20, 100)
-              GridCol({ span: 2 }) {
-                Row({ space: 16 }) {
-                  this.DotBuilder('#87E0CD', true)
-                  this.DotBuilder('#87E0CD', false)
+            if (this.data.studyData[0]) {
+              // knowledge
+              Text('知识点学习进度')
+                .margin({ bottom: 10, top: 30 })
+                .width('100%')
+              GridRow({ columns: 2, gutter: 20 }) {
+                ForEach(this.data.studyData[0].list, (item: StudyTimeItem) => {
+                  this.ProgressBuilder(item.name, item.done, item.total)
+                })
+                GridCol({ span: 2 }) {
+                  Row({ space: 16 }) {
+                    this.DotBuilder('#87E0CD', true)
+                    this.DotBuilder('#87E0CD', false)
+                  }
+                  .margin({ top: 10 })
                 }
-                .margin({ top: 10 })
               }
+              .backgroundColor($r('app.color.white'))
+              .padding(16)
+              .borderRadius(8)
+              .shadow({ color: $r('app.color.common_gray_border'), radius: 16 })
             }
-            .backgroundColor($r('app.color.white'))
-            .padding(16)
-            .borderRadius(8)
-            .shadow({ color: $r('app.color.common_gray_border'), radius: 16 })
 
             // project
-            Text('项目学习进度')
-              .margin({ bottom: 10, top: 30 })
-              .width('100%')
-            GridRow({ columns: 1, gutter: 20 }) {
-              this.ProgressBuilder('HarmonyOS NEXT', 30, 200, '#C7B5ED')
-              this.ProgressBuilder('HarmonyOS NEXT', 30, 200, '#C7B5ED')
-              GridCol() {
-                Row({ space: 16 }) {
-                  this.DotBuilder('#C7B5ED', true)
-                  this.DotBuilder('#C7B5ED', false)
+            if (this.data.studyData[1]) {
+              // project
+              Text('项目学习进度')
+                .margin({ bottom: 10, top: 30 })
+                .width('100%')
+              GridRow({ columns: 1, gutter: 20 }) {
+                ForEach(this.data.studyData[1].list, (item: StudyTimeItem) => {
+                  this.ProgressBuilder(item.name, item.done, item.total, '#C7B5ED')
+                })
+                GridCol() {
+                  Row({ space: 16 }) {
+                    this.DotBuilder('#C7B5ED', true)
+                    this.DotBuilder('#C7B5ED', false)
+                  }
+                  .margin({ top: 10 })
                 }
-                .margin({ top: 10 })
               }
+              .backgroundColor($r('app.color.white'))
+              .padding(16)
+              .borderRadius(8)
+              .shadow({ color: $r('app.color.common_gray_border'), radius: 16 })
             }
-            .backgroundColor($r('app.color.white'))
-            .padding(16)
-            .borderRadius(8)
-            .shadow({ color: $r('app.color.common_gray_border'), radius: 16 })
           }
           .padding(16)
           .margin({ bottom: this.bottomHeight })

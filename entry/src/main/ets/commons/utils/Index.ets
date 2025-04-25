@@ -49,3 +49,7 @@ export const requestClockIn = async () => {
     })
   }
 }
+
+export const calcPercentage = (done: number, total: number) => {
+  return Math.round(done / total * 100) + '%'
+}
