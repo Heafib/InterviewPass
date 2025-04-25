@@ -18,8 +18,10 @@ struct SearchPage {
           .layoutWeight(1)
           .defaultFocus(true)
           .onSubmit((val) => {
-            this.keyword = val
-            this.isSearch = true
+            if (val) {
+              this.keyword = val
+              this.isSearch = true
+            }
           })
           .onChange((val) => {
             this.keyword = val
