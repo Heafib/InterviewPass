@@ -2,7 +2,8 @@ import { UserStoreKey } from '../../commons/utils/Auth'
 import { QuestionDetail, User } from '../../models'
 import { componentSnapshot, promptAction } from '@kit.ArkUI'
 import { image } from '@kit.ImageKit'
-import { fileIo } from '@kit.CoreFileKit'
+import { fileIo, fileUri } from '@kit.CoreFileKit'
+import { photoAccessHelper } from '@kit.MediaLibraryKit'
 
 @CustomDialog
 export struct QuestionShareDialog {
@@ -23,9 +24,13 @@ export struct QuestionShareDialog {
     const file = fileIo.openSync(imagePath, fileIo.OpenMode.CREATE | fileIo.OpenMode.READ_WRITE)
     fileIo.writeSync(file.fd, buffer)
     fileIo.closeSync(file.fd)
-
-    promptAction.showToast({ message: "保存成功" })
     // 保存到相册
+    const uri = fileUri.getUriFromPath(imagePath)
+    const photoRequestChange = photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(ctx, uri)
+    const photoAccess = photoAccessHelper.getPhotoAccessHelper(ctx)
+    await photoAccess.applyChanges(photoRequestChange)
+    this.controller.close()
+    promptAction.showToast({ message: "保存成功" })
   }
 
   build() {
@@ -65,13 +70,19 @@ export struct QuestionShareDialog {
 
 
       Row() {
-        Text('保存到本地')
+        SaveButton({
+          icon: SaveIconStyle.FULL_FILLED,
+          text: SaveDescription.SAVE_IMAGE,
+          buttonType: ButtonType.Normal
+        })
           .fontColor($r('app.color.white'))
           .fontSize(14)
           .padding(12)
           .backgroundColor($r('app.color.common_main_color'))
-          .onClick(() => {
-            this.saveImage()
+          .onClick((_event, result) => {
+            if (result === SaveButtonOnClickResult.SUCCESS) {
+              this.saveImage()
+            }
           })
       }
       .borderRadius({ topLeft: 8 })
