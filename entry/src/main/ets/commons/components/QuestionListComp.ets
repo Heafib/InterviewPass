@@ -26,6 +26,8 @@ export struct QuestionListComp {
   activeIndex: number
   @Prop
   index: number
+  @Prop
+  keyword: string = ''
 
   onChange() {
     if (this.activeIndex === this.index) {
@@ -42,7 +44,8 @@ export struct QuestionListComp {
         type: this.typeId,
         questionBankType: 10,
         sort: this.sort,
-        page: 10
+        page: 10,
+        keyword: this.keyword
       } as QuestionListParams
     })
   }

@@ -69,7 +69,14 @@ export struct HomePage {
             })
           })
         //搜索盒子
-        HSearch({ layoutWeightValue: 1 })
+        HSearch({
+          layoutWeightValue: 1, onClickFn: () => {
+            router.pushUrl({
+              url: 'pages/SearchPage'
+            })
+          }
+        })
+
         // 打卡
         HClockIn()
       }

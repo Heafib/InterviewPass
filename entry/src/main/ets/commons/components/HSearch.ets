@@ -13,6 +13,8 @@ export struct HSearch {
   phColor: ResourceColor = $r('app.color.common_gray_02')
   @Prop
   layoutWeightValue: number = 0
+  onClickFn: () => void = () => {
+  }
 
   build() {
     Row({ space: 2 }) {
@@ -30,5 +32,8 @@ export struct HSearch {
     .borderRadius(this.heightValue / 2)
     .layoutWeight(this.layoutWeightValue)
     .justifyContent(FlexAlign.Center)
+    .onClick(() => {
+      this.onClickFn()
+    })
   }
 }

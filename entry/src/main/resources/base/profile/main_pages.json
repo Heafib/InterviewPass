@@ -4,6 +4,7 @@
     "pages/QuestionPage",
     "pages/LoginPage",
     "pages/WebPage",
-    "pages/TestPage"
+    "pages/TestPage",
+    "pages/SearchPage"
   ]
 }
