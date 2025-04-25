@@ -6,11 +6,16 @@ import scanBarcode from '@hms.core.scan.scanBarcode'
 import { httpClient } from '../commons/utils/HttpClient'
 import { QuestionDetail } from '../models'
 import { promptAction, router } from '@kit.ArkUI'
+import { tracking } from '../commons/utils/Tracking'
 
 @Component
 export struct HomePage {
   @StorageProp('topHeight')
   topHeight: number = 0
+
+  aboutToAppear(): void {
+    tracking.report(true)
+  }
 
   async scanQuestionCode() {
     /// 判断某个能力 设备是否支持

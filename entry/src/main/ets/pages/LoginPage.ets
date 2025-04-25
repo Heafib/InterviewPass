@@ -5,6 +5,7 @@ import { User } from '../models'
 import { auth } from '../commons/utils/Auth'
 import { LOGIN_EVENT_NAME } from '../commons/constants/Index'
 import emitter from '@ohos.events.emitter'
+import { tracking } from '../commons/utils/Tracking'
 
 interface LoginParam {
   username: string
@@ -55,6 +56,7 @@ struct LoginPage {
       // 3.成功 存储
       auth.setUser(user)
       emitter.emit(LOGIN_EVENT_NAME)
+      tracking.report(true)
       // AppStorage.setOrCreate<User>('user', user)
       // 用户+跳转
       const param = router.getParams() as Record<string, string> || {}
