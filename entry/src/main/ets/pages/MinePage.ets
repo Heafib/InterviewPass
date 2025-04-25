@@ -1,7 +1,7 @@
 import { router } from '@kit.ArkUI'
 import { HClockIn } from '../commons/components/HClockIn'
 import { auth, UserStoreKey } from '../commons/utils/Auth'
-import { formatTime } from '../commons/utils/Index'
+import { formatTime, requestClockIn } from '../commons/utils/Index'
 import { statusBar } from '../commons/utils/StatusBar'
 import { User } from '../models'
 import emitter from '@ohos.events.emitter'
@@ -124,7 +124,11 @@ export struct MinePage {
               router.pushUrl({ url: 'pages/LoginPage' })
             })
         }
+        // 打卡
         HClockIn({ clockInCount: this.user.clockinNumbers || 0 })
+          .onClick(() => {
+            requestClockIn()
+          })
       }
       .width('100%')
       .height(100)

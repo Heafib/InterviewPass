@@ -1,17 +1,20 @@
 import { HClockIn } from '../commons/components/HClockIn'
 import { HSearch } from '../commons/components/HSearch'
 import { HomeCategory } from '../views/home/HomeCategory'
-import { auth } from '../commons/utils/Auth'
+import { auth, UserStoreKey } from '../commons/utils/Auth'
 import scanBarcode from '@hms.core.scan.scanBarcode'
 import { httpClient } from '../commons/utils/HttpClient'
-import { QuestionDetail } from '../models'
+import { QuestionDetail, User } from '../models'
 import { promptAction, router } from '@kit.ArkUI'
 import { tracking } from '../commons/utils/Tracking'
+import { requestClockIn } from '../commons/utils/Index'
 
 @Component
 export struct HomePage {
   @StorageProp('topHeight')
   topHeight: number = 0
+  @StorageProp(UserStoreKey)
+  user: User = {} as User
 
   aboutToAppear(): void {
     tracking.report(true)
@@ -78,7 +81,10 @@ export struct HomePage {
         })
 
         // 打卡
-        HClockIn()
+        HClockIn({ clockInCount: this.user.clockinNumbers || 0 })
+          .onClick(() => {
+            requestClockIn()
+          })
       }
       .padding({
         left: 16,

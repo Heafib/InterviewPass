@@ -5,6 +5,7 @@
     "pages/LoginPage",
     "pages/WebPage",
     "pages/TestPage",
-    "pages/SearchPage"
+    "pages/SearchPage",
+    "pages/ClockInPage"
   ]
 }
