@@ -80,6 +80,11 @@ export struct HomePage {
           this.SwiperItemBuilder(src)
         })
       }
+      .onClick(() => {
+        router.pushUrl({
+          url: 'pages/TestPage'
+        })
+      })
       .margin({
         bottom: 16
       })
