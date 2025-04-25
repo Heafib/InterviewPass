@@ -2,11 +2,39 @@ import { HClockIn } from '../commons/components/HClockIn'
 import { HSearch } from '../commons/components/HSearch'
 import { HomeCategory } from '../views/home/HomeCategory'
 import { auth } from '../commons/utils/Auth'
+import scanBarcode from '@hms.core.scan.scanBarcode'
+import { httpClient } from '../commons/utils/HttpClient'
+import { QuestionDetail } from '../models'
+import { promptAction, router } from '@kit.ArkUI'
 
 @Component
 export struct HomePage {
   @StorageProp('topHeight')
   topHeight: number = 0
+
+  async scanQuestionCode() {
+    /// 判断某个能力 设备是否支持
+    if (canIUse('SystemCapability.Multimedia.Scan.ScanBarcode')) {
+      // 调起扫码界面
+      const result = await scanBarcode.startScanForResult(getContext(this))
+      // 根据结果查询试题
+      if (result.originalValue) {
+        try {
+          const item = await httpClient.request<QuestionDetail>({ url: `/question/${result.originalValue}` })
+          // 跳转
+          router.pushUrl({
+            url: 'pages/QuestionPage',
+            params: {
+              item,
+              list: [item]
+            }
+          })
+        } catch (e) {
+          promptAction.showToast({ message: '没有找到试题' })
+        }
+      }
+    }
+  }
 
   @Builder
   SwiperItemBuilder(src: Resource) {
@@ -32,6 +60,7 @@ export struct HomePage {
           .onClick(() => {
             auth.checkAuth(() => {
               console.log('扫描')
+              this.scanQuestionCode()
             })
           })
         //搜索盒子
