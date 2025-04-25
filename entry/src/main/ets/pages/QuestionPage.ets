@@ -5,6 +5,7 @@ import { promptAction, router } from '@kit.ArkUI'
 import { httpClient } from '../commons/utils/HttpClient'
 import { webview } from '@kit.ArkWeb'
 import { HLoadingDialog } from '../commons/components/HLoadingDialog'
+import { QuestionShareDialog } from '../views/question/QuestionShareDialog'
 
 
 @Entry
@@ -20,6 +21,11 @@ struct QuestionPage {
   webController = new webview.WebviewController()
   dialog = new CustomDialogController({
     builder: HLoadingDialog(),
+    customStyle: true,
+    alignment: DialogAlignment.Center
+  })
+  shareDialog = new CustomDialogController({
+    builder: QuestionShareDialog({ item: this.item }),
     customStyle: true,
     alignment: DialogAlignment.Center
   })
@@ -133,6 +139,9 @@ struct QuestionPage {
         })
       MenuItem({ content: '点我反馈' })
       MenuItem({ content: '试题分享' })
+        .onClick(() => {
+          this.shareDialog.open()
+        })
     }
     .width(108)
   }
