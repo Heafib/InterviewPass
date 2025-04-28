@@ -5,6 +5,7 @@ import { logger } from '../commons/utils/Logger'
 import { promptAction, router } from '@kit.ArkUI'
 import { fileIo } from '@kit.CoreFileKit'
 import { media } from '@kit.MediaKit'
+import { AudioBoComp } from '../views/audio/AudioBoComp'
 
 @Entry
 @Component
@@ -13,6 +14,9 @@ struct AudioPage {
   filePath: string = ''
   fd: number = 0
   avRecorder: media.AVRecorder | null = null
+  timer?: number
+  @State
+  maxAmplitude: number = 0
 
   async startRecord() {
     // 准备文件
@@ -37,6 +41,11 @@ struct AudioPage {
     await avRecorder.prepare(config)
     await avRecorder.start()
     this.avRecorder = avRecorder
+    /// 获取声音大小
+    this.timer = setInterval(async () => {
+      this.maxAmplitude = await avRecorder.getAudioCapturerMaxAmplitude()
+      logger.debug('maxAmplitude', this.maxAmplitude.toString())
+    }, 100)
   }
 
   async stopRecord() {
@@ -44,6 +53,8 @@ struct AudioPage {
       await this.avRecorder.stop()
       await this.avRecorder.release()
       fileIo.closeSync(this.fd)
+      clearInterval(this.timer)
+      this.maxAmplitude = 0
     }
   }
 
@@ -99,6 +110,9 @@ struct AudioPage {
         .onClick(() => {
           this.stopRecord()
         })
+      AudioBoComp({
+        maxAmplitude: this.maxAmplitude
+      })
     }
     .height('100%')
     .width('100%')
