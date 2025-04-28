@@ -17,6 +17,11 @@ struct AudioPage {
   timer?: number
   @State
   maxAmplitude: number = 0
+  avPlayer?: media.AVPlayer
+  @State
+  value: number = 0
+  @State
+  total: number = 0
 
   async startRecord() {
     // 准备文件
@@ -55,6 +60,36 @@ struct AudioPage {
       fileIo.closeSync(this.fd)
       clearInterval(this.timer)
       this.maxAmplitude = 0
+      this.value = 0
+    }
+  }
+
+  async startPlay() {
+
+    const file = fileIo.openSync(this.filePath, fileIo.OpenMode.READ_ONLY)
+
+    const avplayer = await media.createAVPlayer()
+    avplayer.on('stateChange', (state) => {
+      if (state === 'initialized') {
+        avplayer.prepare()
+      } else if (state === 'prepared') {
+        avplayer.loop = true
+        this.total = avplayer.duration // 总时长
+        avplayer.play()
+      }
+    })
+    avplayer.url = `fd://${file.fd}`
+
+    avplayer.on('timeUpdate', (time) => {
+      this.value = time
+    })
+    this.avPlayer = avplayer
+  }
+
+  async stopPlay() {
+    if (this.avPlayer) {
+      await this.avPlayer.stop()
+      await this.avPlayer.release()
     }
   }
 
@@ -113,6 +148,17 @@ struct AudioPage {
       AudioBoComp({
         maxAmplitude: this.maxAmplitude
       })
+      Button('播放')
+        .onClick(() => {
+          this.startPlay()
+        })
+      Button('停止')
+        .onClick(() => {
+          this.stopPlay()
+        })
+      Progress({ value: this.value, total: this.total })
+        .width('100%')
+        .height(2)
     }
     .height('100%')
     .width('100%')
