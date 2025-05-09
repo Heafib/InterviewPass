@@ -1,5 +1,8 @@
 import { media } from '@kit.MediaKit'
 import { fileIo } from '@kit.CoreFileKit'
+import { InterviewAudioItem } from '../../commons/utils/AudioDB'
+import { auth } from '../../commons/utils/Auth'
+import dayjs from 'dayjs'
 
 @Component
 export struct AudioRecordComp {
@@ -9,6 +12,13 @@ export struct AudioRecordComp {
   filePath?: string
   timer?: number
   @State maxAmplitude: number = 0
+  @State
+  isRecording: boolean = false
+  startTime: number = Date.now()
+  // 录音完毕
+  onRecordEnd: (item: InterviewAudioItem) => void = () => {
+
+  }
 
   async startRecord() {
     // 1. 准备一个文件接收录音
@@ -17,7 +27,7 @@ export struct AudioRecordComp {
     this.filePath = filePath
     const file = fileIo.openSync(filePath, fileIo.OpenMode.CREATE | fileIo.OpenMode.READ_WRITE)
     this.fd = file.fd
-    // 2. 准备路由配置对象
+    // 2. 准备录音配置对象
     const config: media.AVRecorderConfig = {
       audioSourceType: media.AudioSourceType.AUDIO_SOURCE_TYPE_MIC,
       profile: {
@@ -38,6 +48,7 @@ export struct AudioRecordComp {
     this.timer = setInterval(async () => {
       this.maxAmplitude = await avRecorder.getAudioCapturerMaxAmplitude()
     }, 100)
+    this.startTime = Date.now()
   }
 
   async stopRecord() {
@@ -59,7 +70,26 @@ export struct AudioRecordComp {
           .aspectRatio(1)
           .fillColor($r('app.color.white'))
           .onClick(async () => {
-            // TODO 开始和停止录音
+            if (this.isRecording) {
+              // 结束
+              this.stopRecord()
+              this.isRecording = false
+              const file = fileIo.openSync(this.filePath, fileIo.OpenMode.READ_ONLY)
+              const size = fileIo.statSync(file.fd).size
+              // 组织录音对象传给父组件
+              this.onRecordEnd({
+                id: null,
+                name: dayjs().format('YYYY年MM月DD日_HH时mm分ss秒'),
+                path: this.filePath!,
+                duration: Date.now() - this.startTime,
+                size: size,
+                user_id: auth.getUser().id,
+                create_time: Date.now()
+              })
+            } else {
+              this.startRecord()
+              this.isRecording = true
+            }
           })
       }
       .justifyContent(FlexAlign.Center)
@@ -67,7 +97,7 @@ export struct AudioRecordComp {
       .width(50)
       .borderRadius(25)
       .margin({ top: 20 })
-      .backgroundColor($r('app.color.black'))
+      .backgroundColor(this.isRecording ? $r('app.color.common_blue') : $r('app.color.black'))
     }
     .width('100%')
     .height(240)

@@ -1,5 +1,6 @@
 import { HNavBar } from '../../commons/components/HNavBar'
-import { InterviewAudioItem } from '../../commons/utils/AudioDB'
+import { audioDB, InterviewAudioItem } from '../../commons/utils/AudioDB'
+import { auth } from '../../commons/utils/Auth'
 import { AudioItemComp } from './AudioItemComp'
 import { AudioRecordComp } from './AudioRecordComp'
 
@@ -7,6 +8,17 @@ import { AudioRecordComp } from './AudioRecordComp'
 export struct AudioView {
   @State
   list: InterviewAudioItem[] = []
+
+  aboutToAppear(): void {
+    audioDB.initDB().then(() => {
+      this.getList()
+    })
+  }
+
+  async getList() {
+    const list = await audioDB.query(auth.getUser().id)
+    this.list = list
+  }
 
   build() {
     Column() {
@@ -16,15 +28,7 @@ export struct AudioView {
           ForEach(this.list, (item: InterviewAudioItem) => {
             ListItem() {
               AudioItemComp({
-                item: {
-                  id: 1,
-                  name: '2024年10月01日_10点10分10秒',
-                  path: '/data/el/xxx',
-                  user_id: '100',
-                  duration: 10000,
-                  size: 10000,
-                  create_time: 10000
-                }
+                item: item
               })
             }
           })
@@ -35,7 +39,13 @@ export struct AudioView {
       .width('100%')
       .layoutWeight(1)
 
-      AudioRecordComp()
+      AudioRecordComp({
+        onRecordEnd: async (item) => {
+          // 入库
+          await audioDB.insert(item)
+          this.getList()
+        }
+      })
     }
   }
 }

@@ -115,3 +115,5 @@ class AudioDB {
     return Promise.resolve(list)
   }
 }
+
+export const audioDB = new AudioDB()
