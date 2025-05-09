@@ -1,7 +1,9 @@
 import { HLoadingDialog } from '../commons/components/HLoadingDialog'
 import { HNavBar } from '../commons/components/HNavBar'
-import { UserStoreKey } from '../commons/utils/Auth'
+import { auth, UserStoreKey } from '../commons/utils/Auth'
+import { httpClient } from '../commons/utils/HttpClient'
 import { User } from '../models'
+import promptAction from '@ohos.promptAction'
 
 @Entry
 @Component
@@ -12,6 +14,20 @@ struct ProfilePage {
     customStyle: true,
     alignment: DialogAlignment.Center
   })
+
+  async updateNickname() {
+    await httpClient.request<null>({
+      url: 'userInfo/profile',
+      method: 'post',
+      data: {
+        nickName: this.user.username
+      }
+    })
+    promptAction.showToast({
+      message: '修改昵称成功'
+    })
+    auth.setUser(this.user)
+  }
 
   build() {
     Column() {
@@ -48,7 +64,8 @@ struct ProfilePage {
               .borderRadius(0)
               .onChange((value) => this.user.nickName = value)
               .onSubmit(() => {
-                // TODO 更新昵称
+                // 更新昵称
+                this.updateNickname()
               })
           }
           .width('100%')
