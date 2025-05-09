@@ -4,7 +4,7 @@ import { auth } from '../commons/utils/Auth';
 import { ColorModeKey } from '../commons/utils/Theme';
 import { User } from '../models';
 import { SettingsThemeDialog } from '../views/setting/SettingsThemeDialog';
-import { bundleManager, ConfigurationConstant } from '@kit.AbilityKit';
+import { bundleManager, common, ConfigurationConstant, Want } from '@kit.AbilityKit';
 import { fileIo, storageStatistics } from '@kit.CoreFileKit';
 
 export interface Tool {
@@ -122,7 +122,22 @@ struct SettingsPage {
         this.toolsBuilder({ name: '账号设置', radius: 2 })
         Blank()
           .height(15)
-        this.toolsBuilder({ name: '消息推送', radius: 1 })
+        this.toolsBuilder({
+          name: '消息推送', radius: 1, onClick: () => {
+            let want: Want = {
+              bundleName: 'com.huawei.hmos.settings',
+              abilityName: 'com.huawei.hmos.settings.MainAbility',
+              // 具体页面
+              uri: 'application_info_entry',
+              parameters: {
+                // 应用包名
+                pushParams: 'com.heafib.interviewpass'
+              }
+            };
+            const context = getContext(this) as common.UIAbilityContext
+            context.startAbility(want)
+          }
+        })
         this.toolsBuilder({
           name: '深色模式',
           value: this.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? '已开启' : '已关闭',
