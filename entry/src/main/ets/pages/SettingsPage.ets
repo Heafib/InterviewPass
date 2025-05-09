@@ -5,6 +5,7 @@ import { ColorModeKey } from '../commons/utils/Theme';
 import { User } from '../models';
 import { SettingsThemeDialog } from '../views/setting/SettingsThemeDialog';
 import { ConfigurationConstant } from '@kit.AbilityKit';
+import { fileIo, storageStatistics } from '@kit.CoreFileKit';
 
 export interface Tool {
   icon?: ResourceStr
@@ -23,8 +24,38 @@ struct SettingsPage {
     builder: SettingsThemeDialog(),
     customStyle: true,
     alignment: DialogAlignment.Bottom
-
   })
+  @State
+  cache: string = '0MB'
+
+  calcCache() {
+    storageStatistics.getCurrentBundleStats()
+      .then(res => {
+        this.cache = (res.cacheSize / (1000 * 1000)).toFixed(2) + 'MB'
+      })
+  }
+
+  async clearCache() {
+    const ctx = getContext(this)
+    // hap缓存
+    const ctxCacheDir = ctx.cacheDir
+    const ctxExist = fileIo.accessSync(ctxCacheDir)
+    if (ctxExist) {
+      fileIo.rmdirSync(ctxCacheDir)
+    }
+    // 应用
+    const appCtx = ctx.getApplicationContext()
+    const appCacheDir = appCtx.cacheDir
+    const appCacheExist = fileIo.accessSync(appCacheDir)
+    if (appCacheExist) {
+      fileIo.rmdirSync(appCacheDir)
+    }
+    this.calcCache()
+  }
+
+  onPageShow(): void {
+    this.calcCache()
+  }
 
   @Builder
   toolsBuilder(tool: Tool) {
@@ -91,8 +122,9 @@ struct SettingsPage {
           }
         })
         this.toolsBuilder({
-          name: '清除应用缓存', value: '10MB', onClick: () => {
-            // TODO 清除缓存
+          name: '清除应用缓存', value: this.cache, onClick: () => {
+            //  清除缓存
+            this.clearCache()
           }
         })
         this.toolsBuilder({ name: '当前版本', value: '1.0.0', radius: 2 })
