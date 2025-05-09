@@ -7,6 +7,7 @@ import promptAction from '@ohos.promptAction'
 import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { fileIo } from '@kit.CoreFileKit'
 import { FormData } from '@ohos/axios'
+import { image } from '@kit.ImageKit'
 
 @Entry
 @Component
@@ -41,30 +42,40 @@ struct ProfilePage {
     const result = await picker.select(selectOp)
     const uri = result.photoUris[0]
     // 拷贝沙箱+准备数据
+
     const ctx = getContext(this)
-    const file = fileIo.openSync(uri, fileIo.OpenMode.READ_ONLY)
-    const path = ctx.cacheDir + '/' + file.name
-    fileIo.copyFileSync(file.fd, path)
-    fileIo.closeSync(file.fd)
+
+    //
+    // const file = fileIo.openSync(uri, fileIo.OpenMode.READ_ONLY)
+    // const path = ctx.cacheDir + '/' + file.name
+    // fileIo.copyFileSync(file.fd, path)
+    // fileIo.closeSync(file.fd)
+    //压缩图片
+    const oriFile = fileIo.openSync(uri, fileIo.OpenMode.READ_ONLY)
+    const imageSource = image.createImageSource(oriFile.fd)
+    const imagePacker = image.createImagePacker()
+    const arrBuffer = await imagePacker.packToData(imageSource, { format: "image/jpeg", quality: 70 })
+    const path = ctx.cacheDir + '/' + Date.now() + '.jpg'
+    const file = fileIo.openSync(path, fileIo.OpenMode.CREATE | fileIo.OpenMode.READ_WRITE)
+    fileIo.writeSync(file.fd, arrBuffer)
+    fileIo.close(file.fd)
     const formData = new FormData()
     formData.append('file', `internal://cache/${file.name}`)
     this.dialog.open()
+
+
     // 提交头像
-    httpClient.request<null>({
+    const url = await httpClient.request<string>({
       url: 'userInfo/avatar',
       method: 'post',
+      data: formData,
       headers: { 'Content-Type': 'multipart/form-data' },
       context: ctx
     })
-    // logger.debug('userInfo/avatar', JSON.stringify(url))
-    const user = await httpClient.request<User>({
-      url: 'userInfo'
-    })
+    const user = await httpClient.request<User>({ url: 'userInfo' })
     this.user.avatar = user.avatar
-    auth.setUser(user)
-    promptAction.showToast({
-      message: '修改头像成功'
-    })
+    auth.setUser(this.user)
+    promptAction.showToast({ message: '更新头像成功' })
     this.dialog.close()
   }
 
