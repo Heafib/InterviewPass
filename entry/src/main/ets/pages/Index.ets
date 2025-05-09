@@ -1,4 +1,5 @@
 import { auth } from '../commons/utils/Auth'
+import { theme } from '../commons/utils/Theme'
 import { HomePage } from './HomePage'
 import { InterviewPage } from './InterviewPage'
 import { MinePage } from './MinePage'
@@ -12,6 +13,7 @@ interface TabItem {
 }
 
 auth.initUser()
+theme.initTheme()
 
 @Entry
 @Component
