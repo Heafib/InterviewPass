@@ -4,6 +4,9 @@ import { auth, UserStoreKey } from '../commons/utils/Auth'
 import { httpClient } from '../commons/utils/HttpClient'
 import { User } from '../models'
 import promptAction from '@ohos.promptAction'
+import { photoAccessHelper } from '@kit.MediaLibraryKit'
+import { fileIo } from '@kit.CoreFileKit'
+import { FormData } from '@ohos/axios'
 
 @Entry
 @Component
@@ -29,6 +32,42 @@ struct ProfilePage {
     auth.setUser(this.user)
   }
 
+  async updateAvatar() {
+    //选中相册图片
+    const picker = new photoAccessHelper.PhotoViewPicker()
+    const selectOp = new photoAccessHelper.PhotoSelectOptions()
+    selectOp.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE
+    selectOp.maxSelectNumber = 1
+    const result = await picker.select(selectOp)
+    const uri = result.photoUris[0]
+    // 拷贝沙箱+准备数据
+    const ctx = getContext(this)
+    const file = fileIo.openSync(uri, fileIo.OpenMode.READ_ONLY)
+    const path = ctx.cacheDir + '/' + file.name
+    fileIo.copyFileSync(file.fd, path)
+    fileIo.closeSync(file.fd)
+    const formData = new FormData()
+    formData.append('file', `internal://cache/${file.name}`)
+    this.dialog.open()
+    // 提交头像
+    httpClient.request<null>({
+      url: 'userInfo/avatar',
+      method: 'post',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      context: ctx
+    })
+    // logger.debug('userInfo/avatar', JSON.stringify(url))
+    const user = await httpClient.request<User>({
+      url: 'userInfo'
+    })
+    this.user.avatar = user.avatar
+    auth.setUser(user)
+    promptAction.showToast({
+      message: '修改头像成功'
+    })
+    this.dialog.close()
+  }
+
   build() {
     Column() {
       HNavBar({ title: '编辑资料', showRightIcon: false })
@@ -43,7 +82,8 @@ struct ProfilePage {
               .borderRadius(20)
               .border({ width: 0.5, color: $r('app.color.common_gray_border') })
               .onClick(() => {
-                // TODO 更新头像
+                // 更新头像
+                this.updateAvatar()
               })
           }
           .width('100%')
