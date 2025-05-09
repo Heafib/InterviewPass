@@ -4,7 +4,6 @@ import { auth, UserStoreKey } from '../commons/utils/Auth'
 import { formatTime, requestClockIn } from '../commons/utils/Index'
 import { statusBar } from '../commons/utils/StatusBar'
 import { User } from '../models'
-import emitter from '@ohos.events.emitter'
 
 interface Nav {
   icon: ResourceStr
@@ -110,6 +109,9 @@ export struct MinePage {
                 .aspectRatio(1)
                 .fillColor($r('app.color.common_gray_01'))
             }
+            .onClick(() => {
+              auth.checkAuth({ url: 'pages/ProfilePage' })
+            })
           }
           .layoutWeight(1)
           .alignItems(HorizontalAlign.Start)
@@ -179,34 +181,34 @@ export struct MinePage {
         this.toolsBuilder({ icon: $r('app.media.ic_mine_info'), name: '关于我们' })
         this.toolsBuilder({
           icon: $r('app.media.ic_mine_setting'), name: '设置', onClick: () => {
-            // TODO
+            auth.checkAuth({ url: 'pages/SettingsPage' })
           }
         })
       }
       .backgroundColor($r('app.color.white'))
       .borderRadius(8)
 
-      Text('学习时间---' + this.user.totalTime)
-      // 测试清楚token
-      Button('清除用户')
-        .onClick(() => {
-          auth.setUser({} as User)
-        })
-      Button('模拟token失效')
-        .onClick(() => {
-          const user = auth.getUser()
-          user.token = '1111111111111'
-          auth.setUser(user)
-        })
-      Button('触发事件')
-        .onClick(() => {
-          // emitter.emit('事件名称'，数据)
-          emitter.emit('test', {
-            data: {
-              name: 'jack'
-            }
-          })
-        })
+      // Text('学习时间---' + this.user.totalTime)
+      // // 测试清楚token
+      // Button('清除用户')
+      //   .onClick(() => {
+      //     auth.setUser({} as User)
+      //   })
+      // Button('模拟token失效')
+      //   .onClick(() => {
+      //     const user = auth.getUser()
+      //     user.token = '1111111111111'
+      //     auth.setUser(user)
+      //   })
+      // Button('触发事件')
+      //   .onClick(() => {
+      //     // emitter.emit('事件名称'，数据)
+      //     emitter.emit('test', {
+      //       data: {
+      //         name: 'jack'
+      //       }
+      //     })
+      //   })
 
     }
     .padding(16)

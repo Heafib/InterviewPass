@@ -5,11 +5,14 @@ import { AudioItemComp } from './AudioItemComp'
 import { AudioRecordComp } from './AudioRecordComp'
 import { InputDialog } from './InputDialog'
 import { fileIo } from '@kit.CoreFileKit'
+import { AudioPlayer } from './AudioPlayer'
 
 @Component
 export struct AudioView {
   @State
   list: InterviewAudioItem[] = []
+  @State
+  isShow: boolean = false
   @State
   currentItem: InterviewAudioItem = {} as InterviewAudioItem
   dialog = new CustomDialogController({
@@ -27,6 +30,13 @@ export struct AudioView {
     alignment: DialogAlignment.Center
 
   })
+
+  @Builder
+  PlayerBuilder() {
+    Column() {
+      AudioPlayer({ item: this.currentItem })
+    }
+  }
 
   aboutToAppear(): void {
     audioDB.initDB().then(() => {
@@ -73,6 +83,10 @@ export struct AudioView {
               AudioItemComp({
                 item: item
               })
+                .onClick(() => {
+                  this.currentItem = item
+                  this.isShow = true
+                })
             }
             .swipeAction({
               end: this.ListItemSwipeBuilder(item)
@@ -93,6 +107,9 @@ export struct AudioView {
         }
       })
     }
+    .width('100%')
+    .height('100%')
+    .bindContentCover($$this.isShow, this.PlayerBuilder())
   }
 }
 
