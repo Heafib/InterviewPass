@@ -20,6 +20,23 @@ export struct AudioView {
     this.list = list
   }
 
+  @Builder
+  ListItemSwipeBuilder(item: InterviewAudioItem) {
+    Row() {
+      Text('编辑')
+        .actionButton($r('app.color.common_blue'))
+      Text('删除')
+        .actionButton('#FF0033')
+        .onClick(async () => {
+          if (item.id) {
+            await audioDB.delete(item.id)
+            this.getList()
+          }
+        })
+    }
+    .height('100%')
+  }
+
   build() {
     Column() {
       HNavBar({ title: '面试录音', showRightIcon: false })
@@ -31,6 +48,9 @@ export struct AudioView {
                 item: item
               })
             }
+            .swipeAction({
+              end: this.ListItemSwipeBuilder(item)
+            })
           })
         }
         .width('100%')
@@ -48,4 +68,13 @@ export struct AudioView {
       })
     }
   }
+}
+
+@Extend(Text)
+function actionButton(color: ResourceColor) {
+  .width(80)
+  .aspectRatio(1)
+  .backgroundColor(color)
+  .textAlign(TextAlign.Center)
+  .fontColor($r('app.color.white'))
 }
