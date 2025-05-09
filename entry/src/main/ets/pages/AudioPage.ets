@@ -1,11 +1,10 @@
-import { HNavBar } from '../commons/components/HNavBar'
 import { Permissions } from '@kit.AbilityKit'
 import { permission } from '../commons/utils/Permission'
 import { logger } from '../commons/utils/Logger'
 import { promptAction, router } from '@kit.ArkUI'
 import { fileIo } from '@kit.CoreFileKit'
 import { media } from '@kit.MediaKit'
-import { AudioBoComp } from '../views/audio/AudioBoComp'
+import { AudioView } from '../views/audio/AudioView'
 
 @Entry
 @Component
@@ -135,30 +134,8 @@ struct AudioPage {
   }
 
   build() {
-    Column({ space: 20 }) {
-      HNavBar({ title: '面试录音', showRightIcon: false })
-      Button('开启录音')
-        .onClick(() => {
-          this.startRecord()
-        })
-      Button('结束录音')
-        .onClick(() => {
-          this.stopRecord()
-        })
-      AudioBoComp({
-        maxAmplitude: this.maxAmplitude
-      })
-      Button('播放')
-        .onClick(() => {
-          this.startPlay()
-        })
-      Button('停止')
-        .onClick(() => {
-          this.stopPlay()
-        })
-      Progress({ value: this.value, total: this.total })
-        .width('100%')
-        .height(2)
+    Column() {
+      AudioView()
     }
     .height('100%')
     .width('100%')
