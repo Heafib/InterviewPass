@@ -2,6 +2,7 @@ import { router } from '@kit.ArkUI';
 import { HNavBar } from '../commons/components/HNavBar';
 import { auth } from '../commons/utils/Auth';
 import { User } from '../models';
+import { SettingsThemeDialog } from '../views/setting/SettingsThemeDialog';
 
 export interface Tool {
   icon?: ResourceStr
@@ -14,6 +15,13 @@ export interface Tool {
 @Entry
 @Component
 struct SettingsPage {
+  themeDialog = new CustomDialogController({
+    builder: SettingsThemeDialog(),
+    customStyle: true,
+    alignment: DialogAlignment.Bottom
+
+  })
+
   @Builder
   toolsBuilder(tool: Tool) {
     Row() {
@@ -74,7 +82,8 @@ struct SettingsPage {
           value: '已关闭',
           radius: 1,
           onClick: () => {
-            // TODO 设置主题
+            //  设置主题
+            this.themeDialog.open()
           }
         })
         this.toolsBuilder({
