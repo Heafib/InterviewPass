@@ -2,7 +2,8 @@
 export struct HLoadingDialog {
   controller: CustomDialogController
   @Prop message: string = '加载中...'
-
+  @StorageProp('isDark')
+  isDark: boolean = false
   build() {
     Column() {
       Column({ space: 10 }) {
@@ -19,7 +20,7 @@ export struct HLoadingDialog {
       .justifyContent(FlexAlign.Center)
       .width(120)
       .height(120)
-      .backgroundColor('rgba(0,0,0,0.6)')
+      .backgroundColor(this.isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)')
       .borderRadius(16)
     }
   }

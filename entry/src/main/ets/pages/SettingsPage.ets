@@ -1,8 +1,10 @@
 import { router } from '@kit.ArkUI';
 import { HNavBar } from '../commons/components/HNavBar';
 import { auth } from '../commons/utils/Auth';
+import { ColorModeKey } from '../commons/utils/Theme';
 import { User } from '../models';
 import { SettingsThemeDialog } from '../views/setting/SettingsThemeDialog';
+import { ConfigurationConstant } from '@kit.AbilityKit';
 
 export interface Tool {
   icon?: ResourceStr
@@ -15,6 +17,8 @@ export interface Tool {
 @Entry
 @Component
 struct SettingsPage {
+  @StorageProp(ColorModeKey)
+  colorMode: ConfigurationConstant.ColorMode = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT
   themeDialog = new CustomDialogController({
     builder: SettingsThemeDialog(),
     customStyle: true,
@@ -79,7 +83,7 @@ struct SettingsPage {
         this.toolsBuilder({ name: '消息推送', radius: 1 })
         this.toolsBuilder({
           name: '深色模式',
-          value: '已关闭',
+          value: this.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? '已开启' : '已关闭',
           radius: 1,
           onClick: () => {
             //  设置主题

@@ -23,6 +23,8 @@ export struct HomeCategory {
   filterDataIndex: number = 0
   @State
   loading: boolean = false
+  @StorageProp('isDark')
+  isDark: boolean = false
 
   @Builder
   FilterSheetBuilder() {
@@ -228,7 +230,7 @@ export struct HomeCategory {
       .justifyContent(FlexAlign.Center)
       .linearGradient({
         angle: 90,
-        colors: [['#00FFFFFF', 0], ['#FFFFFF', 0.285]]
+        colors: [[this.isDark ? '#00000000' : '#00FFFFFF', 0], [this.isDark ? '#131313' : '#FFFFFF', 0.285]]
       })
       .onClick(() => {
         this.show = true
