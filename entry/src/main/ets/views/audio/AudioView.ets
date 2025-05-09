@@ -4,6 +4,7 @@ import { auth } from '../../commons/utils/Auth'
 import { AudioItemComp } from './AudioItemComp'
 import { AudioRecordComp } from './AudioRecordComp'
 import { InputDialog } from './InputDialog'
+import { fileIo } from '@kit.CoreFileKit'
 
 @Component
 export struct AudioView {
@@ -54,6 +55,8 @@ export struct AudioView {
           if (item.id) {
             await audioDB.delete(item.id)
             this.getList()
+            // 删除文件
+            fileIo.unlinkSync(item.path)
           }
         })
     }
